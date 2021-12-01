@@ -52,6 +52,12 @@ aoc -y 2019 -d 4 -s
 This will ask the user which part of the problems want to submit, and
 the answer.
 
+## Contributing
+
+That's not Github! NO PR or Issues. If you want to contribute, send me
+a patch to srht@mrkeebs.eu.
+Did you know of https://git-scm.com/docs/git-send-email
+
 ## Licence
 
 GNU Affero General Public License
