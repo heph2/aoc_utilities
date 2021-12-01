@@ -58,6 +58,9 @@ That's not Github! NO PR or Issues. If you want to contribute, send me
 a patch to srht@mrkeebs.eu.
 Did you know of https://git-scm.com/docs/git-send-email
 
+If you're not familiar with those tools, there's also a mirror of this repo
+on [SourceHut](https://git.sr.ht/~heph/aoc_utilities)
+
 ## Licence
 
 GNU Affero General Public License
