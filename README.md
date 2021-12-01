@@ -25,7 +25,7 @@ You just need curl and html2text for better rendering html
 Log-In to [AoC](https://adventofcode.com) and retrieve the cookie session
 Open network-tab, make a request clicking the input of some day, and check
 for the response Header.
-Copy the cookie session and store it in a Environment Var.
+Copy the cookie session and store it in a Environment Var named COOKIE_AOC.
 Now you're Ready!
 
 ## Usage
