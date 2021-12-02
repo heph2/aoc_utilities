@@ -18,21 +18,33 @@ Help()
 {
    echo "Simple shell script for download AoC input."
    echo
-   echo "Syntax: aoc [-y|-d|-h] <options>"
-   echo "options:"
-   echo "y     Year of AoC."
-   echo "d     Day of input."
-   echo "i     Download input of selected year and day."
-   echo "s     Submit answer."
-   echo "r     Read text."
-   echo "c     Print Private Leaderboard chart."
-   echo "h     Print this Help."
+   echo "USAGE:"
+   echo       "aoc.sh [OPTIONS] <COMMAND>"
+   echo
+   echo "FLAGS:"
+   echo       "-h"
+   echo               "Prints help information"
+   echo
+   echo "OPTIONS:"
+   echo       "-d"
+   echo               "Puzzle Day"
+   echo       "-y"
+   echo               "Puzzle Year"
+   echo       "-c"
+   echo               "Chart of Private Leaderboard"   
+   echo
+   echo "ARGS:"
+   echo       "-i"
+   echo               "Download Input of selected year and day"
+   echo       "-r"
+   echo               "Read the Puzzle of the selected year and day"
+   echo       "-s"
+   echo               "Submit the Answer for the selected year and day"   
 }
 
 Read()
 {
-    response=$(curl --fail -sS -b "$COOKIE_AOC" "https://adventofcode.com/$2/day/$1")
-    echo $response | sed -n 's:.*<main>\(.*\)</main>.*:\1:p' | html2text
+    curl --fail -sS -b "$COOKIE_AOC" "https://adventofcode.com/2021/day/1" | sed -n '/<main>/,/<\/main>/p' | html2text
 }
 
 Chart()
@@ -67,7 +79,7 @@ Submit()
     
     response=$(curl --fail -sS -d "level=$part&answer=$answer" -H "$content_type" -b "$COOKIE_AOC" -X POST "https://adventofcode.com/$2/day/$1/answer")
 
-    echo $response | sed -n 's:.*<main>\(.*\)</main>.*:\1:p' | fmt | html2text
+    echo $response | sed -n '/<main>/,/<\/main>/p' | fmt | html2text
 }
 
 while getopts :hy:d:c:isr flag
