@@ -65,7 +65,7 @@ Submit()
     
     content_type="Content-Type: application/x-www-form-urlencoded"
     
-    response=$(curl -d "level=$part&answer=$answer" -H "$content_type" -b "$COOKIE_AOC" -X POST "https://adventofcode.com/$2/day/$1/answer")
+    response=$(curl --fail -sS -d "level=$part&answer=$answer" -H "$content_type" -b "$COOKIE_AOC" -X POST "https://adventofcode.com/$2/day/$1/answer")
 
     echo $response | sed -n 's:.*<main>\(.*\)</main>.*:\1:p' | fmt | html2text
 }
