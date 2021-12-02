@@ -18,13 +18,14 @@ Help()
 {
    echo "Simple shell script for download AoC input."
    echo
-   echo "Syntax: aoc [-y|-d|-h]"
+   echo "Syntax: aoc [-y|-d|-h] <options>"
    echo "options:"
    echo "y     Year of AoC."
    echo "d     Day of input."
    echo "i     Download input of selected year and day."
    echo "s     Submit answer."
    echo "r     Read text."
+   echo "c     Print Private Leaderboard chart."
    echo "h     Print this Help."
 }
 
@@ -32,6 +33,13 @@ Read()
 {
     response=$(curl --fail -sS -b "$COOKIE_AOC" "https://adventofcode.com/$2/day/$1")
     echo $response | sed -n 's:.*<main>\(.*\)</main>.*:\1:p' | html2text
+}
+
+Chart()
+{
+    chart=$(curl --fail -sS -b "$COOKIE_AOC" "https://adventofcode.com/2021/leaderboard/private/view/$1.json")
+
+    echo $chart | jq -r '.members[]' |jq -s -c 'sort_by(.local_score) | reverse' | jq -r '.[] | [.stars, .local_score, .name] | @csv' | awk -v FS="," 'BEGIN{print "STARS\tSCORE\t\tNAME";print "================================="}{printf "%d\t%d\t\t%s%s", $1, $2, $3, ORS}'    
 }
 
 Input()
@@ -62,7 +70,7 @@ Submit()
     echo $response | sed -n 's:.*<main>\(.*\)</main>.*:\1:p' | fmt | html2text
 }
 
-while getopts :hy:d:isr flag
+while getopts :hy:d:c:isr flag
 do
     case "$flag" in
         h) Help
@@ -74,6 +82,8 @@ do
         s) Submit $day $year
            exit;;
         r) Read $day $year
+           exit;;
+        c) Chart ${OPTARG}
            exit;;
         \?) echo "Error: Invalid Option"
             exit;;
