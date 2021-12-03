@@ -14,7 +14,7 @@
 
 set -e
 
-Help()
+help()
 {
    echo "Simple shell script for download AoC input."
    echo
@@ -42,19 +42,22 @@ Help()
    echo               "Submit the Answer for the selected year and day"   
 }
 
-Read()
+read_puzzle()
 {
-    curl --fail -sS -b "$COOKIE_AOC" "https://adventofcode.com/2021/day/1" | sed -n '/<main>/,/<\/main>/p' | html2text
+    curl --fail -sS -b "$COOKIE_AOC" "https://adventofcode.com/$2/day/$1" | sed -n '/<main>/,/<\/main>/p' | html2text
 }
 
-Chart()
+chart()
 {
     chart=$(curl --fail -sS -b "$COOKIE_AOC" "https://adventofcode.com/2021/leaderboard/private/view/$1.json")
 
-    echo $chart | jq -r '.members[]' |jq -s -c 'sort_by(.local_score) | reverse' | jq -r '.[] | [.stars, .local_score, .name] | @csv' | awk -v FS="," 'BEGIN{print "STARS\tSCORE\t\tNAME";print "================================="}{printf "%d\t%d\t\t%s%s", $1, $2, $3, ORS}'    
+    echo $chart | jq -r '.members[]' | \
+        jq -s -c 'sort_by(.local_score) | reverse' | \
+        jq -r '.[] | [.stars, .local_score, .name] | @csv' | \
+        awk -v FS="," 'BEGIN{print "STARS\tSCORE\t\tNAME";print "================================="}{printf "%d\t%d\t\t%s%s", $1, $2, $3, ORS}'    
 }
 
-Input()
+input()
 {
     mkdir -p day_$1
     output_path="day_$1/input.txt"
@@ -67,7 +70,7 @@ Input()
     curl --fail -sS -b "$COOKIE_AOC" "https://adventofcode.com/$2/day/$1/input" -o "$output_path"
 }
 
-Submit()
+submit()
 {
     echo "Which part you want submit?"
     read -r part
@@ -77,27 +80,44 @@ Submit()
     
     content_type="Content-Type: application/x-www-form-urlencoded"
     
-    response=$(curl --fail -sS -d "level=$part&answer=$answer" -H "$content_type" -b "$COOKIE_AOC" -X POST "https://adventofcode.com/$2/day/$1/answer")
+    response=$(curl -d "level=$part&answer=$answer" -H "$content_type" -b "$COOKIE_AOC" -X POST "https://adventofcode.com/$2/day/$1/answer")
 
     echo $response | sed -n '/<main>/,/<\/main>/p' | fmt | html2text
 }
 
-while getopts :hy:d:c:isr flag
+while getopts hy:d:c:isr flag
 do
     case "$flag" in
-        h) Help
-           exit;;
-        y) year=${OPTARG};;
-        d) day=${OPTARG};;
-        i) Input $day $year
-           exit;;
-        s) Submit $day $year
-           exit;;
-        r) Read $day $year
-           exit;;
-        c) Chart ${OPTARG}
-           exit;;
-        \?) echo "Error: Invalid Option"
+        h) mode="help";;
+        i) mode="input";;
+        s) mode="submit";;
+        r) mode="read_puzzle";;
+        c) mode="chart" ; leaderboard="${OPTARG}";;
+        y) year="${OPTARG}";;
+        d) day="${OPTARG}";;
+        \*) echo "Missing Mode"
             exit;;
+    esac
+
+    if [ "$mode" = "input" -o  "$mode" = "submit" -o "$mode" = "read" ];
+    then
+        if [ -z "$year" -a -z "$day" ];
+        then
+            echo "Year and Day are not defined."
+            exit;
+        fi
+    fi
+
+    case "$mode" in
+        help) help
+              exit;;
+        input) input "$day" "$year"
+               exit;;
+        read_puzzle) read_puzzle "$day" "$year"
+               exit;;
+        submit) submit "$day" "$year"
+                exit;;
+        chart) chart "$leaderboard"
+               exit;;
     esac
 done
